@@ -1,26 +1,27 @@
-use std::{env, fs, any::Any};
-
-use nom::{error::ErrorKind, Err::{Failure, Incomplete, Error}};
-use rom::Rom;
+use std::{env, fs};
 
 mod cpu;
+mod mapper;
+mod memory;
 mod rom;
 
 fn main() -> Result<(), String> {
-    let args: Vec<String> = env::args().collect();
-    let binary_url = args.get(1).ok_or("You have to specify an NES rom")?;
+    let binary_path: String = env::args()
+        .collect::<Vec<String>>()
+        .get(1)
+        .ok_or_else(|| "You have to specify an NES rom".to_owned())?
+        .to_owned();
+    let nes_file = fs::read(&binary_path)
+        .map_err(|e| format!("Error while opening file: {}", e))
+        .and_then(rom::parse_rom)?;
 
-    let binary = fs::read(binary_url).map_err(|_| "Error while loading binary.")?;
+    println!(
+        "Starting binary {} with mapper {} and flags {:?}",
+        binary_path, nes_file.mapper, nes_file.flags
+    );
 
-    let (_, rom) = Rom::parse(&binary).map_err(|e| {
-        let error = match &e {
-            Incomplete(v) => "Incomplete error: Should not occour, something really strange is going on",
-            Failure(e) | Error(e) => e.code.description()
-        };
-        format!("Parsing error occoured: {}", error)
-    })?;
-
-    let mut cpu = cpu::Cpu::new(rom);
+    let mapper = mapper::choose_mapper(nes_file);
+    let mut cpu = cpu::Cpu::new(&mapper);
 
     loop {
         cpu.step()

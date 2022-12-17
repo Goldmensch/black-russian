@@ -1,28 +1,29 @@
-use crate::rom::Rom;
+use crate::{mapper::Mapper, memory::Memory};
 
 pub struct Cpu<'a> {
-    rom: Rom<'a>,
-    pc: u16,
+    pc: usize,
+    memory: Memory<'a>,
 }
-  
+
 impl Cpu<'_> {
-    pub fn new(rom: Rom<'_>) -> Cpu<'_> {
-        Cpu { 
-            rom,
-            pc: 0 
+    pub fn new(mapper: &dyn Mapper) -> Cpu<'_> {
+        let mut cpu = Cpu {
+            pc: 0,
+            memory: Memory::cpu(mapper),
+        };
+        mapper.init_memory(&mut cpu.memory);
+        cpu
+    }
+
+    fn decode_next_opcode(&mut self) -> &u8 {
+        let code = self.memory.read_opcode(self.pc);
+        self.pc += 1;
+        code
+    }
+
+    pub fn step(&mut self) {
+        match self.decode_next_opcode() {
+            code => panic!("Unknown op code {code:#X}"),
         }
     }
-  
-    fn decode_next_opcode(&mut self) -> u8 {
-      self.pc += 1;
-      self.rom.prg[self.pc as usize]
-    }
-  
-    pub fn step(&mut self) {
-      match self.decode_next_opcode() {
-            code => panic!("Unknown op code {code:#X}"),
-      }
-    }
- }
-
-enum Ops {}
+}
