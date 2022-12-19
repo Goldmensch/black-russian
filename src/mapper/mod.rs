@@ -1,6 +1,6 @@
 use std::ops::RangeInclusive;
 
-use crate::{memory::Memory, rom::NesFile};
+use crate::{memory::Memory, nesfile::NesFile};
 
 use self::nrom::NRom;
 
@@ -17,6 +17,6 @@ pub trait Mapper {
 pub fn choose_mapper(rom: NesFile) -> impl Mapper {
     match rom.mapper {
         0 => NRom::new(rom),
-        other => panic!("Unknown mapper {other}")
+        other => panic!("Unknown mapper {other}"),
     }
 }

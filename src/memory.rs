@@ -14,24 +14,19 @@ impl Memory<'_> {
     pub fn cpu(mapper: &dyn Mapper) -> Memory<'_> {
         Memory {
             mem_type: MemType::Cpu,
-            data: vec!(0u8; 0xFFFF+1),
+            data: vec![0u8; 0xFFFF + 1],
             mapper,
         }
     }
 
-    pub fn read(&self, index: usize) -> &u8 {
+    pub fn read(&self, index: usize) -> u8 {
         let mapped_index = self.map_index(index);
-        &self.data[mapped_index]
+        self.data[mapped_index]
     }
 
     pub fn write(&mut self, index: usize, data: u8) {
         let mapped_index = self.map_index(index);
         self.data[mapped_index] = data;
-    }
-
-    pub fn read_opcode(&self, pc: usize) -> &u8 {
-      let index = self.mapper.pgr_window().start() + pc;
-      self.read(index)
     }
 
     pub fn data_vec(&mut self) -> &mut Vec<u8> {

@@ -1,6 +1,6 @@
-use std::ops::{RangeInclusive};
+use std::ops::RangeInclusive;
 
-use crate::{rom::NesFile, memory::Memory};
+use crate::{memory::Memory, nesfile::NesFile};
 
 use super::Mapper;
 
@@ -12,19 +12,22 @@ enum NRomType {
 }
 
 pub struct NRom {
-  nrom_type: NRomType,
-  rom: NesFile
-
+    nrom_type: NRomType,
+    rom: NesFile,
 }
 
 impl NRom {
-  pub fn new(rom: NesFile) -> NRom {
-    let nrom_type = if rom.prg_rom.len() > KIB_16 { NRomType::Nrom128} else {NRomType::Nrom256};
-    NRom {
-      nrom_type,
-      rom
+    pub fn new(nesfile: NesFile) -> NRom {
+        let nrom_type = if nesfile.prg_rom.len() > KIB_16 {
+            NRomType::Nrom128
+        } else {
+            NRomType::Nrom256
+        };
+        NRom {
+            nrom_type,
+            rom: nesfile,
+        }
     }
-  }
 }
 
 impl Mapper for NRom {

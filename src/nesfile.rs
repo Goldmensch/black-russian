@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use binrw::BinRead;
+use binrw::{binread, BinRead};
 use bitflags::bitflags;
 
 bitflags! {
@@ -19,10 +19,12 @@ bitflags! {
     }
 }
 
-#[derive(BinRead)]
+#[binread]
 #[br(magic = b"NES\x1A")]
 pub struct NesFile {
+    #[br(temp)]
     prg_rom_unit_size: u8,
+    #[br(temp)]
     chr_rom_unit_size: u8,
     pub(super) flags: NesFlags,
 

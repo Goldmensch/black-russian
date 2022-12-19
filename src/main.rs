@@ -3,7 +3,7 @@ use std::{env, fs};
 mod cpu;
 mod mapper;
 mod memory;
-mod rom;
+mod nesfile;
 
 fn main() -> Result<(), String> {
     let binary_path: String = env::args()
@@ -13,7 +13,7 @@ fn main() -> Result<(), String> {
         .to_owned();
     let nes_file = fs::read(&binary_path)
         .map_err(|e| format!("Error while opening file: {}", e))
-        .and_then(rom::parse_rom)?;
+        .and_then(nesfile::parse_rom)?;
 
     println!(
         "Starting binary {} with mapper {} and flags {:?}",
